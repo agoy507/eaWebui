@@ -1,0 +1,22 @@
+name: rsi-martingale-webui
+
+services:
+  webui:
+    container_name: rsi-martingale-webui
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: local/rsi-martingale-webui:2.5.4.2
+    restart: unless-stopped
+    ports:
+      - target: 8000
+        published: "8000"
+        protocol: tcp
+    environment:
+      TZ: Asia/Jakarta
+      EA_CONTROL_STATE_FILE: /app/data/state.json
+      COOKIE_SECURE: "0"
+    volumes:
+      - type: bind
+        source: /DATA/AppData/rsi-martingale-webui/data
+        target: /app/data
