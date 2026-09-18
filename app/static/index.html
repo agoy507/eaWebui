@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#081310" />
+    <title>RSI Martingale Control</title>
+    <meta
+      name="description"
+      content="Dashboard lokal untuk mengatur dan memantau EA RSI Martingale di MetaTrader 5."
+    />
+    <link rel="stylesheet" href="/static/styles.css?v=2.5.4.2-r3" />
+    <script src="/static/app.js?v=2.5.4.2-r3" defer></script>
+  </head>
+  <body>
+    <div class="auth-shell" id="authShell">
+      <section class="auth-card">
+        <div class="auth-brand"><span class="brand-mark" aria-hidden="true">RM</span><div><p class="eyebrow">MT5 CONTROL PLANE V2.5.4.2</p><h1>RSI Martingale</h1></div></div>
+        <div id="loginView" hidden>
+          <h2>Masuk ke WebUI</h2>
+          <p class="auth-copy">Gunakan akun yang dibuat administrator.</p>
+          <form id="loginForm" class="auth-form">
+            <label>Username<input id="loginUsername" autocomplete="username" minlength="3" required /></label>
+            <label>Password<input id="loginPassword" type="password" autocomplete="current-password" minlength="8" required /></label>
+            <button class="button button-primary" type="submit">Login</button>
+          </form>
+        </div>
+        <div id="setupView" hidden>
+          <h2>Buat administrator pertama</h2>
+          <p class="auth-copy">Setup hanya tersedia sebelum akun pertama dibuat. Simpan token EA yang ditampilkan setelah setup.</p>
+          <form id="setupForm" class="auth-form">
+            <label>Username admin<input id="setupUsername" value="admin" autocomplete="username" pattern="[a-z0-9_.-]{3,32}" required /></label>
+            <label>Password admin<input id="setupPassword" type="password" autocomplete="new-password" minlength="8" required /></label>
+            <label>EA ID admin<input id="setupEaId" value="rsi-martingale-xauusd-m1" pattern="[A-Za-z0-9_.-]{3,100}" required /></label>
+            <label>IP EA yang diizinkan<input id="setupAllowedIp" value="*" required /><small>Gunakan IP, CIDR, atau * untuk semua IP.</small></label>
+            <button class="button button-primary" type="submit">Buat administrator</button>
+          </form>
+        </div>
+        <p class="auth-error" id="authError" hidden></p>
+      </section>
+    </div>
+
+    <div class="shell" id="appShell" hidden>
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">RM</span>
+          <div>
+            <p class="eyebrow">MT5 CONTROL PLANE</p>
+            <h1>RSI Martingale</h1>
+          </div>
+        </div>
+        <div class="topbar-controls">
+          <label class="target-picker" id="targetPicker" hidden><span id="targetPickerLabel">EA Saya</span><select id="targetEaSelect" aria-label="EA ID yang sedang dikelola"></select></label>
+          <button class="button button-secondary admin-nav-button" id="manageUsersButton" type="button" hidden>Kelola User</button>
+          <button class="button button-secondary calculator-nav-button" id="calculatorButton" type="button">Kalkulator</button>
+          <button class="button button-secondary account-nav-button" id="accountSettingsButton" type="button">Pengaturan Akun</button>
+          <span class="user-badge" id="userBadge">—</span>
+          <button class="button button-secondary logout-button" id="logoutButton" type="button">Logout</button>
+          <div class="connection-pill" id="connectionPill" data-state="offline">
+            <span class="pulse-dot" aria-hidden="true"></span>
+            <span id="connectionText">Menunggu EA</span>
+          </div>
+        </div>
+      </header>
+
+      <main id="dashboardView">
+        <section class="hero-grid" aria-label="Status utama EA">
+          <article class="status-card status-card-primary">
+            <div>
+              <p class="card-label">STATUS ALGORITMA</p>
+              <p class="status-value" id="algoStatus">—</p>
+            </div>
+            <div class="hero-actions">
+              <button class="button button-start" id="startButton" type="button">Mulai</button>
+              <button class="button button-stop" id="stopButton" type="button">Stop</button>
+            </div>
+          </article>
+
+          <article class="status-card">
+            <p class="card-label">SIMBOL / HARGA</p>
+            <p class="metric-main" id="symbolValue">XAUUSD</p>
+            <div class="metric-pair"><span>Bid <strong id="bidValue">—</strong></span><span>Ask <strong id="askValue">—</strong></span></div>
+          </article>
+
+          <article class="status-card">
+            <p class="card-label">INDIKATOR BUY/SELL</p>
+            <p class="metric-main accent" id="rsiValue">—</p>
+            <div class="rsi-track" id="rsiTrack" role="img" aria-label="Menunggu nilai RSI EA"><span id="rsiNeedle"></span></div>
+            <div class="rsi-zone-labels" aria-hidden="true"><span>BUY</span><span>NETRAL</span><span>SELL</span></div>
+            <p class="rsi-signal-text" id="rsiSignalText">Menunggu RSI EA</p>
+            <p class="metric-note" id="rsiSourceNote">Menunggu telemetry EA</p>
+          </article>
+
+          <article class="status-card">
+            <p class="card-label">FLOATING PROFIT AKUN</p>
+            <p class="metric-main" id="profitValue">—</p>
+            <p class="metric-note" id="floatingProfitNote">Menunggu telemetry EA</p>
+            <div class="metric-pair"><span>Buy <strong id="buyPositions">0</strong></span><span>Sell <strong id="sellPositions">0</strong></span></div>
+          </article>
+
+          <article class="status-card status-card-finance">
+            <p class="card-label">SALDO AKUN MT5</p>
+            <p class="metric-main" id="accountBalanceValue">—</p>
+            <p class="metric-note" id="accountBalanceNote">Menunggu telemetry EA</p>
+          </article>
+
+          <article class="status-card status-card-finance">
+            <p class="card-label">PROFIT AKUN HARI INI</p>
+            <p class="metric-main" id="dailyProfitValue">—</p>
+            <p class="metric-note" id="dailyProfitDate">Profit net · waktu server broker</p>
+          </article>
+
+          <article class="status-card daily-profit-target-card">
+            <p class="card-label">AUTO-STOP PROFIT HARIAN</p>
+            <label class="switch-row compact-switch">
+              <span><strong>Aktifkan auto-stop</strong><small>Hanya menghentikan entry baru; posisi aktif tetap dikelola</small></span>
+              <input id="dailyProfitAutoStopEnabled" type="checkbox" role="switch" />
+            </label>
+            <label class="daily-profit-target-field">Target profit harian
+              <input id="dailyProfitTarget" type="text" inputmode="decimal" placeholder="Contoh: 100" min="0.01" />
+            </label>
+            <button class="button button-secondary" id="saveDailyProfitAutoStopButton" type="button">Simpan pengaturan</button>
+            <p class="metric-note" id="dailyProfitAutoStopNote">Target tersimpan per user/EA.</p>
+          </article>
+
+          <article class="status-card status-card-finance account-expiration-card">
+            <p class="card-label">MASA BERLAKU AKUN</p>
+            <p class="metric-main account-expiration-value" id="accountExpirationValue">—</p>
+            <p class="metric-note" id="accountExpirationNote">Menunggu data akun</p>
+          </article>
+        </section>
+
+        <section class="workspace-grid">
+          <form class="panel settings-panel" id="settingsForm">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">RUNTIME CONFIG</p>
+                <h2>Parameter strategi</h2>
+              </div>
+              <span class="revision" id="revisionLabel">rev —</span>
+            </div>
+
+            <section class="user-entry-mode-section" id="userTradingModeForm" hidden>
+              <div class="trading-mode-heading">
+                <div><p class="eyebrow">ENTRY MODE</p><h3>Pilih profil RSI</h3></div>
+                <span class="revision" id="activeTradingModeLabel">Belum dipilih</span>
+              </div>
+              <label class="user-trading-mode-select">Nama profil
+                <select id="userTradingModeSelect">
+                  <option value="">Pilih profil…</option>
+                </select>
+              </label>
+              <button class="button button-primary user-trading-mode-save" id="activateTradingModeButton" type="button">Gunakan profil</button>
+              <p class="form-note" id="userTradingModeNote">Administrator belum membuat profil untuk akun ini.</p>
+            </section>
+
+            <fieldset id="rsiSettingsFieldset">
+              <legend>Sinyal RSI</legend>
+              <div class="field-grid three-columns">
+                <label>Periode RSI<input name="rsi_period" type="number" min="2" max="200" required /></label>
+                <label>Level beli<input name="rsi_buy_level" type="number" min="1" max="49" required /></label>
+                <label>Level jual<input name="rsi_sell_level" type="number" min="51" max="100" required /></label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Trading dasar</legend>
+              <div class="field-grid three-columns">
+                <label>Lot awal<input name="initial_lot" type="text" inputmode="decimal" data-decimal-input data-decimal-label="Lot awal" data-min="0.01" data-max="100" required /></label>
+                <label class="strategy-standard-field">SL dari posisi terakhir<input name="sl_pips_from_last" type="number" min="1" required /><small>pip XAUUSD</small></label>
+                <label class="strategy-standard-field">TP dari harga rata-rata<input name="tp_pips_from_bep" type="number" min="1" required /><small>pip XAUUSD</small></label>
+                <label class="strategy-trailing-field" hidden>SL awal cycle<input name="initial_sl_pips" type="number" min="1" required /><small>pip XAUUSD</small></label>
+                <label class="strategy-trailing-field" hidden>TP layer pertama dari BE<input name="first_layer_tp_pips" type="number" min="1" required /><small>pip XAUUSD · hanya layer pertama, mengikuti BE hingga trailing aktif</small></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="strategy-trailing-field" hidden>
+              <legend>Trailing Stop Gabungan</legend>
+              <div class="field-grid three-columns">
+                <label>Mulai trailing dari BEP<input name="trailing_start_pips" type="number" min="1" required /><small>pip</small></label>
+                <label>Jarak SL dari harga<input name="trailing_distance_pips" type="number" min="1" required /><small>pip</small></label>
+                <label>Minimal pergeseran SL<input name="trailing_step_pips" type="number" min="1" required /><small>pip</small></label>
+              </div>
+              <p class="form-note">Saat basket sudah melewati BEP, SL yang sama digeser untuk semua posisi milik EA. SL tidak pernah diperlonggar.</p>
+            </fieldset>
+
+            <fieldset>
+              <legend>Martingale</legend>
+              <label class="switch-row">
+                <span><strong>Aktifkan martingale</strong><small>Tambah posisi saat harga bergerak berlawanan</small></span>
+                <input name="martingale_enabled" type="checkbox" role="switch" />
+              </label>
+              <div class="field-grid four-columns">
+                <label>Jarak<input name="martingale_distance_pips" type="number" min="1" required /><small>pip</small></label>
+                <label>Pengali lot<input name="lot_multiplier" type="text" inputmode="decimal" data-decimal-input data-decimal-label="Pengali lot" data-min="1" data-max="10" required /></label>
+                <label>Maks. tahap<input name="max_martingale" type="number" min="0" step="1" required /><small class="risk-field-note">Tanpa batas atas; nilai tinggi meningkatkan risiko secara ekstrem.</small></label>
+                <label>Lot maksimal<input name="max_lot" type="text" inputmode="decimal" data-decimal-input data-decimal-label="Lot maksimal" data-min="0.01" data-max="100" required /></label>
+              </div>
+            </fieldset>
+
+            <div class="form-actions">
+              <button class="button button-secondary" id="saveButton" type="submit">Simpan parameter</button>
+              <button class="button button-primary" id="refreshProtectionButton" type="button">Simpan + refresh SL/TP</button>
+            </div>
+            <p class="form-note">Desimal menerima koma atau titik, misalnya <strong>1,5</strong> atau <strong>1.5</strong>. Setiap layer dihitung sebagai Lot awal × Pengali^tahap, lalu layer tambahan dibulatkan naik ke step volume broker. Semua hasil tetap dibatasi Lot maksimal.</p>
+          </form>
+
+          <aside class="side-column">
+            <section class="panel control-panel" id="stopBehaviorPanel">
+              <div class="panel-heading compact">
+                <div><p class="eyebrow">STOP BEHAVIOR</p><h2>Mode berhenti</h2></div>
+              </div>
+              <label class="select-label" for="stopMode">Saat tombol Stop ditekan</label>
+              <select id="stopMode">
+                <option value="delete_pending" selected>Hapus pending, kelola siklus aktif</option>
+                <option value="pause_only">Pause entry baru, kelola siklus aktif</option>
+                <option value="close_all">Tutup seluruh posisi EA</option>
+              </select>
+              <p class="warning-text" id="stopHint">Pending order milik EA dihapus; entry awal baru berhenti dan siklus aktif tetap dikelola.</p>
+            </section>
+
+            <form class="panel schedule-panel" id="scheduleForm">
+              <div class="panel-heading compact">
+                <div><p class="eyebrow">DAILY TIMER</p><h2>Jadwal entry</h2></div>
+                <span class="schedule-state" id="scheduleState" data-state="disabled">Nonaktif</span>
+              </div>
+              <label class="switch-row schedule-switch">
+                <span><strong>Aktifkan jadwal</strong><small>Berjalan di server tanpa browser terbuka</small></span>
+                <input id="scheduleEnabled" name="enabled" type="checkbox" role="switch" />
+              </label>
+              <div class="schedule-time-grid">
+                <label>Mulai entry<input id="scheduleStartTime" name="start_time" type="time" required /></label>
+                <label>Hentikan entry<input id="scheduleStopTime" name="stop_time" type="time" required /></label>
+              </div>
+              <button class="button button-secondary schedule-save" id="saveScheduleButton" type="submit">Simpan jadwal</button>
+              <p class="schedule-countdown" id="scheduleCountdown">Jadwal nonaktif</p>
+              <p class="form-note schedule-note">Zona waktu <strong id="scheduleTimezone">Asia/Jakarta</strong>. Tombol manual berlaku sampai batas jadwal berikutnya.</p>
+            </form>
+
+            <section class="panel telemetry-panel">
+              <div class="panel-heading compact">
+                <div><p class="eyebrow">TELEMETRY</p><h2>Status koneksi</h2></div>
+              </div>
+              <dl class="telemetry-list">
+                <div><dt>Pemilik</dt><dd id="ownerValue">—</dd></div>
+                <div><dt>EA ID</dt><dd id="eaIdValue">rsi-martingale-xauusd-m1</dd></div>
+                <div><dt>IP diizinkan</dt><dd id="allowedIpValue">—</dd></div>
+                <div><dt>Akun</dt><dd id="accountValue">—</dd></div>
+                <div><dt>Total posisi</dt><dd id="totalPositions">0</dd></div>
+                <div><dt>Heartbeat terakhir</dt><dd id="lastSeenValue">Belum ada</dd></div>
+              </dl>
+              <div class="error-box" id="errorBox" hidden></div>
+            </section>
+          </aside>
+        </section>
+      </main>
+
+      <main class="calculator-view" id="calculatorView" hidden>
+        <section class="panel calculator-shell">
+          <div class="panel-heading calculator-page-heading">
+            <div>
+              <p class="eyebrow">EA RISK CALCULATOR · XAUUSD</p>
+              <h2>Profit &amp; Loss Calculator</h2>
+              <p class="calculator-intro">TP dihitung dari harga rata-rata (BEP), sedangkan SL dihitung dari posisi terakhir—sesuai logika EA.</p>
+            </div>
+            <div class="calculator-page-actions">
+              <span class="revision" id="calculatorContext">EA —</span>
+              <button class="button button-secondary" id="backFromCalculatorButton" type="button">Kembali ke Dashboard</button>
+            </div>
+          </div>
+
+          <div class="calculator-grid">
+            <form class="calculator-parameters" id="calculatorForm">
+              <div class="calculator-section-heading">
+                <div><p class="card-label">PARAMETER EA</p><h3>Input perhitungan P/L</h3></div>
+                <button class="button button-secondary calculator-compact-button" id="resetCalculatorButton" type="button">Reset</button>
+              </div>
+
+              <label class="switch-row calculator-switch">
+                <span><strong>Aktifkan martingale</strong><small>Posisi tambahan bertingkat</small></span>
+                <input id="calcMartingaleEnabled" type="checkbox" role="switch" checked />
+              </label>
+
+              <div class="calculator-fields">
+                <label>Lot awal<input id="calcInitialLot" type="text" inputmode="decimal" data-decimal-input data-decimal-label="Lot awal kalkulator" data-min="0.01" data-max="100" value="0.01" required /><small>lot</small></label>
+                <label>Pengali lot<input id="calcLotMultiplier" type="text" inputmode="decimal" data-decimal-input data-decimal-label="Pengali lot kalkulator" data-min="1" data-max="10" value="1.5" required /><small>×</small></label>
+                <label>Jarak martingale<input id="calcDistancePips" type="number" min="1" max="100000" step="1" value="15" required /><small>pip</small></label>
+                <label>Maks. martingale<input id="calcMaxMartingale" type="number" min="0" step="1" value="5" required /><small>tahap tambahan</small></label>
+                <label>Lot maksimal<input id="calcMaxLot" type="text" inputmode="decimal" data-decimal-input data-decimal-label="Lot maksimal kalkulator" data-min="0.01" data-max="100" value="0.5" required /><small>lot</small></label>
+                <label>Nilai 1 pip / 1 lot<input id="calcPipValueUsd" type="text" inputmode="decimal" data-decimal-input data-decimal-label="Nilai pip kalkulator" data-min="0.01" data-max="100000" value="10" required /><small id="calcPipCurrency">USD</small></label>
+                <label>Take Profit dari BEP<input id="calcTpPips" type="number" min="1" max="100000" step="1" value="20" required /><small>pip</small></label>
+                <label>Stop Loss dari posisi terakhir<input id="calcSlPips" type="number" min="1" max="100000" step="1" value="20" required /><small>pip</small></label>
+              </div>
+              <p class="calculator-risk-warning">Maksimum tahap EA tidak dibatasi. Kalkulator dan EA menghitung Lot awal × Pengali^tahap; layer tambahan selalu dibulatkan naik ke step broker. Contoh: 0,01 × 1,2 = 0,012 menjadi 0,02. Karena setiap tahap dihitung dari lot awal, beberapa tahap dapat menghasilkan lot broker yang sama.</p>
+
+              <div class="calculator-scenario">
+                <div><span>Skenario posisi terbuka</span><strong id="calcPositionCount">6 posisi</strong></div>
+                <input id="calcPositionRange" type="range" min="1" max="6" value="6" aria-label="Jumlah posisi dalam skenario" />
+              </div>
+              <p class="calculator-limit-note" id="calculatorLimitNote" hidden></p>
+
+              <button class="button button-primary calculator-use-ea" id="useEaParametersButton" type="button">Gunakan parameter EA</button>
+              <p class="form-note calculator-form-note">Mengambil parameter EA/user yang sedang dipilih tanpa mengubah konfigurasi trading.</p>
+            </form>
+
+            <section class="calculator-results" aria-live="polite">
+              <article class="calculator-result-hero">
+                <p class="card-label">HASIL SKENARIO</p>
+                <div class="calculator-money-grid">
+                  <div class="calculator-profit">
+                    <span>PROFIT JIKA TP</span>
+                    <strong id="calcProfitValue">$0.00</strong>
+                    <small id="calcTpInfo">—</small>
+                  </div>
+                  <div class="calculator-loss">
+                    <span>LOSS JIKA SL</span>
+                    <strong id="calcLossValue">$0.00</strong>
+                    <small id="calcSlInfo">—</small>
+                  </div>
+                </div>
+                <div class="calculator-ratio"><span>RISK : REWARD</span><strong id="calcRiskReward">1 : 0</strong></div>
+              </article>
+
+              <div class="calculator-metrics">
+                <article><span>TOTAL LOT</span><strong id="calcTotalLot">0</strong></article>
+                <article><span>BEP RELATIF</span><strong id="calcBepRelative">0 pip</strong></article>
+                <article><span>TP RELATIF</span><strong class="calculator-positive" id="calcTpRelative">0 pip</strong></article>
+                <article><span>TP DARI LAYER TERBAWAH</span><strong class="calculator-positive" id="calcTpFromLowest">0 pip</strong></article>
+                <article><span>SL RELATIF</span><strong class="calculator-negative" id="calcSlRelative">0 pip</strong></article>
+              </div>
+
+              <details class="calculator-detail" open>
+                <summary>Rincian profit/loss setiap posisi</summary>
+                <div class="calculator-table-wrap">
+                  <table class="calculator-table">
+                    <thead><tr><th>#</th><th>Lot</th><th>Entry</th><th>TP P/L</th><th>SL P/L</th></tr></thead>
+                    <tbody id="calcRows"></tbody>
+                  </table>
+                </div>
+              </details>
+
+              <p class="calculator-note" id="calculatorCurrencyNote">Estimasi ditampilkan dalam USD. Isi nilai pip sesuai broker; desimal menerima koma atau titik.</p>
+            </section>
+          </div>
+        </section>
+      </main>
+
+      <main class="account-settings-view" id="accountSettingsView" hidden>
+        <section class="panel account-panel">
+          <div class="panel-heading account-panel-heading">
+            <div><p class="eyebrow">AKUN SAYA</p><h2>Pengaturan akun</h2></div>
+            <button class="button button-secondary" id="backFromAccountButton" type="button">Kembali ke Dashboard</button>
+          </div>
+
+          <div class="account-summary-grid">
+            <article class="account-card">
+              <p class="card-label">IDENTITAS WEBUI</p>
+              <dl class="account-detail-list">
+                <div><dt>Username</dt><dd id="accountUsernameValue">—</dd></div>
+                <div><dt>Peran</dt><dd id="accountRoleValue">—</dd></div>
+                <div>
+                  <dt>Pilih EA</dt>
+                  <dd><select class="account-ea-select" id="accountEaSelect"></select></dd>
+                </div>
+                <div>
+                  <dt>EA ID</dt>
+                  <dd class="account-copy-field"><code id="accountEaIdValue">—</code><button class="button button-secondary" id="copyEaIdButton" type="button" aria-label="Salin EA ID">Salin</button></dd>
+                </div>
+                <div><dt>IP diizinkan</dt><dd id="accountAllowedIpValue">—</dd></div>
+              </dl>
+            </article>
+
+            <article class="account-card token-account-card">
+              <p class="card-label">TOKEN EA AKTIF</p>
+              <code class="account-token-masked" id="accountTokenValue">—</code>
+              <p class="account-help">Demi keamanan, token lama hanya ditampilkan tersamarkan. Buat token baru jika token lengkap tidak tersimpan.</p>
+              <form class="compact-account-form" id="rotateOwnTokenForm">
+                <label>Konfirmasi password<input id="tokenCurrentPassword" type="password" autocomplete="current-password" minlength="8" required /></label>
+                <button class="button button-secondary" type="submit">Buat Token Baru</button>
+              </form>
+              <p class="account-danger-note">Token lama langsung tidak berlaku. Masukkan token baru ke parameter <strong>ApiToken</strong> di MT5.</p>
+            </article>
+          </div>
+
+          <section class="password-panel">
+            <div><p class="card-label">KEAMANAN LOGIN</p><h3>Ganti password</h3></div>
+            <form class="password-form" id="changePasswordForm">
+              <label>Password lama<input id="currentPassword" type="password" autocomplete="current-password" minlength="8" required /></label>
+              <label>Password baru<input id="accountNewPassword" type="password" autocomplete="new-password" minlength="8" required /></label>
+              <label>Ulangi password baru<input id="accountConfirmNewPassword" type="password" autocomplete="new-password" minlength="8" required /></label>
+              <button class="button button-primary" type="submit">Simpan Password Baru</button>
+            </form>
+          </section>
+        </section>
+      </main>
+
+      <main class="admin-management-view" id="adminManagementView" hidden>
+        <section class="panel admin-panel">
+          <div class="panel-heading admin-panel-heading">
+            <div><p class="eyebrow">KHUSUS ADMINISTRATOR</p><h2>Pengelolaan user dan EA</h2></div>
+            <div class="admin-page-actions">
+              <span class="revision" id="userCountLabel">0 user</span>
+              <button class="button button-secondary" id="backToDashboardButton" type="button">Kembali ke Dashboard</button>
+            </div>
+          </div>
+          <p class="admin-warning">Perubahan IP, token, atau status user langsung memengaruhi koneksi EA. Periksa kembali data sebelum menyimpan.</p>
+          <form class="admin-create-grid" id="createUserForm">
+            <label>Username<input id="newUsername" pattern="[a-z0-9_.-]{3,32}" required /></label>
+            <label>Password awal<input id="newPassword" type="password" minlength="8" required /></label>
+            <label>EA ID<input id="newEaId" pattern="[A-Za-z0-9_.-]{3,100}" required /></label>
+            <label>IP/CIDR EA<input id="newAllowedIp" placeholder="192.168.1.25 atau *" required /></label>
+            <label>Masa berlaku (Asia/Jakarta)<input id="newUserExpiresAt" type="datetime-local" required /></label>
+            <button class="button button-primary" type="submit">Tambah user</button>
+          </form>
+          <section class="trading-mode-admin-panel admin-trading-mode-management" id="adminTradingModePanel" aria-labelledby="adminTradingModeHeading">
+            <div class="trading-mode-heading">
+              <div><p class="eyebrow">ENTRY MODE USER</p><h3 id="adminTradingModeHeading">Profil RSI global</h3></div>
+              <span class="trading-mode-count" id="tradingModeCount">0 profil</span>
+            </div>
+            <div class="trading-mode-admin-grid">
+              <label>Profil tersimpan
+                <select id="adminTradingModeSelect">
+                  <option value="">Profil baru…</option>
+                </select>
+              </label>
+              <div class="trading-mode-actions">
+                <button class="button button-secondary" id="newTradingModeButton" type="button">Baru</button>
+                <button class="button button-stop" id="deleteTradingModeButton" type="button" disabled>Hapus</button>
+              </div>
+              <label>Nama profil
+                <input id="tradingModeName" type="text" maxlength="40" placeholder="Contoh: Slow" />
+              </label>
+              <label>Periode RSI
+                <input id="tradingModeRsiPeriod" type="number" min="2" max="200" />
+              </label>
+              <label>Level beli
+                <input id="tradingModeRsiBuy" type="number" min="1" max="49" />
+              </label>
+              <label>Level jual
+                <input id="tradingModeRsiSell" type="number" min="51" max="100" />
+              </label>
+              <button class="button button-primary trading-mode-save" id="saveTradingModeButton" type="button">Simpan profil</button>
+            </div>
+            <p class="trading-mode-note" id="adminTradingModeNote">Profil RSI bersifat global dan tersedia untuk semua user. Setiap user hanya melihat nama profil dan memilihnya untuk EA masing-masing.</p>
+          </section>
+          <form class="admin-add-ea-grid" id="addEaForm">
+            <div class="admin-form-title"><p class="card-label">TAMBAH EA KE AKUN</p><p class="form-note">Setiap EA ID mendapat token, IP, konfigurasi, jadwal, dan telemetry sendiri.</p></div>
+            <label>Akun user<select id="additionalEaUsername" required></select></label>
+            <label>EA ID baru<input id="additionalEaId" pattern="[A-Za-z0-9_.-]{3,100}" required /></label>
+            <label>IP/CIDR EA<input id="additionalEaAllowedIp" value="*" placeholder="192.168.1.25 atau *" required /></label>
+            <button class="button button-primary" type="submit">Tambah EA ID</button>
+          </form>
+          <div class="admin-user-list" id="adminUserList"></div>
+        </section>
+      </main>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="modal-backdrop" id="tokenModal" hidden>
+      <section class="token-modal" role="dialog" aria-modal="true" aria-labelledby="tokenModalTitle">
+        <p class="eyebrow">TOKEN EA — TAMPIL SEKALI</p>
+        <h2 id="tokenModalTitle">Simpan token ini</h2>
+        <p class="auth-copy">Masukkan token pada input <strong>ApiToken</strong> EA. Token lengkap tidak dapat dilihat lagi setelah jendela ini ditutup.</p>
+        <code id="tokenValue"></code>
+        <div class="modal-actions">
+          <button class="button button-primary" id="copyTokenButton" type="button">Salin token</button>
+          <button class="button button-secondary" id="closeTokenButton" type="button">Sudah disimpan</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="modal-backdrop" id="deleteUserModal" hidden>
+      <section class="token-modal delete-user-modal" role="dialog" aria-modal="true" aria-labelledby="deleteUserModalTitle">
+        <p class="eyebrow">TINDAKAN PERMANEN</p>
+        <h2 id="deleteUserModalTitle">Hapus user</h2>
+        <p class="auth-copy">Akun, EA ID, token, konfigurasi, jadwal, dan telemetry server milik <strong id="deleteUserName"></strong> akan dihapus. Posisi di MT5 tidak akan ditutup.</p>
+        <form id="deleteUserConfirmForm">
+          <label>Ketik username untuk mengonfirmasi
+            <input id="deleteUserConfirmation" autocomplete="off" required />
+          </label>
+          <p class="account-danger-note">Penghapusan hanya dapat dilakukan ketika EA user sudah offline.</p>
+          <div class="modal-actions">
+            <button class="button button-secondary" id="cancelDeleteUserButton" type="button">Batal</button>
+            <button class="button button-stop" id="confirmDeleteUserButton" type="submit" disabled>Hapus permanen</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </body>
+</html>

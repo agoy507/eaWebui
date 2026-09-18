@@ -1,0 +1,395 @@
+:root {
+  color-scheme: dark;
+  --bg: #07100e;
+  --panel: #0d1916;
+  --panel-raised: #11211c;
+  --line: #20342d;
+  --text: #eff8f3;
+  --muted: #82968d;
+  --green: #46e69f;
+  --green-soft: #163b2c;
+  --red: #ff6b6b;
+  --amber: #f7c96b;
+  --shadow: 0 18px 60px rgba(0, 0, 0, 0.24);
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background:
+    radial-gradient(circle at 15% -10%, rgba(42, 137, 96, 0.2), transparent 34rem),
+    radial-gradient(circle at 100% 15%, rgba(35, 91, 75, 0.12), transparent 30rem),
+    var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  min-height: 100vh;
+}
+
+button, input, select { font: inherit; }
+
+button { cursor: pointer; }
+
+.shell { width: min(1440px, 100%); margin: 0 auto; padding: 24px clamp(16px, 3vw, 44px) 48px; }
+
+.auth-shell { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.auth-card { width: min(470px, 100%); border: 1px solid var(--line); border-radius: 20px; padding: clamp(24px, 5vw, 38px); background: linear-gradient(155deg, rgba(17,33,28,.98), rgba(8,18,15,.98)); box-shadow: var(--shadow); }
+.auth-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 30px; }
+.auth-card h2 { font-size: 1.35rem; }
+.auth-copy { margin: 10px 0 20px; color: var(--muted); font-size: .78rem; line-height: 1.6; }
+.auth-form { display: grid; gap: 15px; }
+.auth-form .button { margin-top: 5px; }
+.auth-error { margin: 18px 0 0; border: 1px solid #663838; border-radius: 10px; padding: 11px; background: #261616; color: #ffaaa5; font-size: .75rem; }
+
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 34px; }
+.topbar-controls { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+.target-picker { min-width: 220px; }
+.target-picker > span { display: block; margin-bottom: 5px; }
+.target-picker select { min-height: 38px; }
+.user-badge { border: 1px solid var(--line); border-radius: 999px; padding: 9px 12px; color: var(--muted); font-size: .72rem; font-weight: 750; }
+.logout-button, .admin-nav-button, .account-nav-button, .calculator-nav-button { min-height: 38px; }
+
+.brand { display: flex; align-items: center; gap: 14px; }
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  aspect-ratio: 1;
+  border: 1px solid #2e6e54;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #17372a, #0c1915);
+  color: var(--green);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  box-shadow: inset 0 1px rgba(255,255,255,.08);
+}
+
+h1, h2, p { margin-top: 0; }
+
+h1 { margin-bottom: 0; font-size: clamp(1.25rem, 2vw, 1.55rem); letter-spacing: -0.03em; }
+
+h2 { margin-bottom: 0; font-size: 1.1rem; letter-spacing: -0.02em; }
+
+.eyebrow, .card-label {
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: .69rem;
+  font-weight: 750;
+  letter-spacing: .14em;
+}
+
+.connection-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(13, 25, 22, .72);
+  color: var(--muted);
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+.pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: #63736c; }
+
+.connection-pill[data-state="online"] { color: var(--green); border-color: #2b624c; }
+.connection-pill[data-state="online"] .pulse-dot { background: var(--green); box-shadow: 0 0 0 5px rgba(70,230,159,.1); animation: pulse 2s infinite; }
+
+@keyframes pulse { 50% { box-shadow: 0 0 0 9px rgba(70,230,159,0); } }
+
+.hero-grid { display: grid; grid-template-columns: 1.35fr repeat(3, 1fr); gap: 14px; margin-bottom: 14px; }
+
+.status-card, .panel {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: linear-gradient(160deg, rgba(17,33,28,.96), rgba(10,20,17,.96));
+  box-shadow: var(--shadow);
+}
+
+.status-card { min-height: 154px; padding: 22px; }
+.status-card-finance { grid-column: span 2; min-height: 128px; }
+.account-expiration-card { grid-column: span 4; }
+.account-expiration-value { font-size: clamp(1.15rem, 2vw, 1.55rem); }
+
+.status-card-primary { display: flex; flex-direction: column; justify-content: space-between; background: linear-gradient(145deg, #163729, #0d1d18); }
+
+.status-value { margin: 0; font-size: clamp(1.75rem, 3vw, 2.6rem); font-weight: 800; letter-spacing: -.05em; }
+
+.metric-main { margin: 18px 0 14px; font-size: 1.65rem; font-weight: 760; letter-spacing: -.04em; }
+.metric-main.accent { color: var(--green); }
+.metric-main.positive { color: var(--green); }
+.metric-main.negative { color: var(--red); }
+.metric-note { margin: 0; color: var(--muted); font-size: .7rem; line-height: 1.45; }
+
+.metric-pair { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: .76rem; }
+.metric-pair strong { display: block; color: var(--text); margin-top: 3px; font-size: .88rem; }
+
+.rsi-track { position: relative; height: 6px; border-radius: 99px; background: linear-gradient(90deg, var(--green) 0 15%, #3a4b44 15% 95%, var(--red) 95% 100%); transition: background .25s ease; }
+.rsi-track span { position: absolute; top: 50%; left: 50%; width: 11px; height: 11px; border: 2px solid var(--text); border-radius: 50%; background: var(--bg); transform: translate(-50%, -50%); transition: left .3s ease; }
+.rsi-zone-labels { display: flex; justify-content: space-between; margin-top: 8px; color: var(--muted); font-size: .58rem; font-weight: 800; letter-spacing: .1em; }
+.rsi-zone-labels span:first-child { color: var(--green); }
+.rsi-zone-labels span:last-child { color: var(--red); }
+.rsi-signal-text { margin: 7px 0 0; color: var(--muted); font-size: .67rem; font-weight: 750; letter-spacing: .06em; }
+.rsi-signal-text[data-signal="buy"] { color: var(--green); }
+.rsi-signal-text[data-signal="sell"] { color: var(--red); }
+
+.hero-actions { display: flex; gap: 8px; margin-top: 16px; }
+
+.button { border: 1px solid transparent; border-radius: 10px; min-height: 40px; padding: 0 16px; color: var(--text); font-size: .82rem; font-weight: 760; transition: transform .15s ease, filter .15s ease, background .15s ease; }
+.button:hover { filter: brightness(1.08); }
+.button:active { transform: translateY(1px); }
+.button:disabled { cursor: wait; opacity: .6; }
+.button-start, .button-primary { background: var(--green); color: #042417; }
+.button-stop { border-color: #5d3434; background: #281a19; color: #ff9a96; }
+.button-secondary { border-color: #315044; background: #172923; }
+
+.workspace-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(280px, .8fr); gap: 14px; }
+.calculator-view { animation: admin-view-in .18s ease-out; }
+.calculator-shell { margin-bottom: 14px; }
+.calculator-page-heading { align-items: flex-start; }
+.calculator-intro { max-width: 720px; margin: 10px 0 0; color: var(--muted); font-size: .76rem; line-height: 1.6; }
+.calculator-page-actions { display: flex; align-items: center; justify-content: flex-end; gap: 9px; flex-wrap: wrap; }
+.calculator-grid { display: grid; grid-template-columns: minmax(340px, .78fr) minmax(0, 1.22fr); gap: 16px; align-items: start; padding-top: 20px; }
+.calculator-parameters { border: 1px solid var(--line); border-radius: 15px; padding: 18px; background: rgba(7,16,14,.55); }
+.calculator-section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.calculator-section-heading h3 { margin: 3px 0 0; font-size: .98rem; }
+.calculator-compact-button { min-height: 34px; padding: 0 12px; font-size: .7rem; }
+.calculator-switch { border: 1px solid var(--line); border-radius: 11px; padding: 12px; background: #0b1814; }
+.calculator-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px 10px; margin-top: 16px; }
+.calculator-fields label { position: relative; }
+.calculator-fields label small { position: absolute; right: 8px; bottom: 9px; margin: 0; border-radius: 5px; padding: 3px 5px; background: #14251f; color: var(--muted); font-size: .62rem; pointer-events: none; }
+.calculator-fields input { padding-right: 72px; font-weight: 720; }
+.calculator-risk-warning, .calculator-limit-note { margin: 13px 0 0; color: var(--amber); font-size: .68rem; line-height: 1.5; }
+.calculator-limit-note { margin-top: 9px; text-align: center; }
+.calculator-scenario { margin-top: 18px; border: 1px solid var(--line); border-radius: 11px; padding: 13px; background: #0b1814; }
+.calculator-scenario div { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 11px; color: var(--muted); font-size: .72rem; }
+.calculator-scenario strong { color: var(--text); }
+.calculator-scenario input { min-height: auto; height: 18px; padding: 0; border: 0; background: transparent; accent-color: var(--green); box-shadow: none; }
+.calculator-scenario input:disabled { opacity: .45; }
+.calculator-use-ea { width: 100%; margin-top: 15px; }
+.calculator-form-note { margin-top: 9px; text-align: center; }
+.calculator-results { display: grid; gap: 12px; min-width: 0; }
+.calculator-result-hero { border: 1px solid #31564c; border-radius: 15px; padding: 20px; background: linear-gradient(145deg, #16372d, #0d211b); box-shadow: var(--shadow); }
+.calculator-money-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 15px; }
+.calculator-money-grid > div { min-width: 0; border: 1px solid #31564c; border-radius: 12px; padding: 15px; background: rgba(23,56,47,.74); }
+.calculator-money-grid span { color: #aec6be; font-size: .66rem; font-weight: 720; letter-spacing: .05em; }
+.calculator-money-grid strong { display: block; margin: 8px 0 4px; font: 650 clamp(1.55rem, 3vw, 2rem) Georgia, serif; overflow-wrap: anywhere; }
+.calculator-profit strong, .calculator-positive { color: #c8f47d; }
+.calculator-loss strong, .calculator-negative { color: #ff9f9b; }
+.calculator-money-grid small { color: #89a59c; font-size: .66rem; }
+.calculator-ratio { display: flex; justify-content: space-between; gap: 16px; margin-top: 16px; color: #a9c0b9; font-size: .72rem; }
+.calculator-ratio strong { color: var(--text); }
+.calculator-metrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.calculator-metrics article { min-width: 0; border: 1px solid var(--line); border-radius: 11px; padding: 13px; background: rgba(17,33,28,.9); }
+.calculator-metrics span { color: var(--muted); font-size: .61rem; }
+.calculator-metrics strong { display: block; margin-top: 7px; font-size: .8rem; overflow-wrap: anywhere; }
+.calculator-detail { border: 1px solid var(--line); border-radius: 13px; overflow: hidden; background: rgba(17,33,28,.9); }
+.calculator-detail summary { padding: 16px; font-size: .78rem; font-weight: 740; cursor: pointer; }
+.calculator-table-wrap { overflow-x: auto; border-top: 1px solid var(--line); }
+.calculator-table { width: 100%; border-collapse: collapse; font-size: .68rem; }
+.calculator-table th, .calculator-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+.calculator-table th { background: #0b1814; color: var(--muted); font-size: .62rem; letter-spacing: .04em; }
+.calculator-table tbody tr:last-child td { border-bottom: 0; }
+.calculator-note { margin: 0 3px; color: var(--muted); font-size: .66rem; line-height: 1.55; }
+.account-settings-view { animation: admin-view-in .18s ease-out; }
+.account-panel-heading { align-items: flex-start; }
+.account-summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding: 20px 0; }
+.account-card { border: 1px solid var(--line); border-radius: 14px; padding: 19px; background: rgba(7,16,14,.55); }
+.account-detail-list { display: grid; gap: 12px; margin: 17px 0 0; }
+.account-detail-list div { display: flex; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); padding-bottom: 9px; }
+.account-detail-list dt { color: var(--muted); font-size: .72rem; }
+.account-detail-list dd { margin: 0; text-align: right; font: 700 .75rem ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+.account-ea-select { min-width: min(270px, 42vw); min-height: 34px; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+.account-copy-field { display: flex; align-items: center; justify-content: flex-end; gap: 7px; min-width: 0; }
+.account-copy-field code { color: var(--text); overflow-wrap: anywhere; }
+.account-copy-field .button { min-height: 30px; padding: 0 10px; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: .67rem; }
+.account-token-masked { display: block; margin: 15px 0 9px; border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: #07100e; color: var(--green); overflow-wrap: anywhere; }
+.account-help, .account-danger-note { color: var(--muted); font-size: .72rem; line-height: 1.55; }
+.account-danger-note { margin: 12px 0 0; color: var(--amber); }
+.compact-account-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 9px; align-items: end; margin-top: 15px; }
+.password-panel { border-top: 1px solid var(--line); padding-top: 20px; }
+.password-panel h3 { margin-top: 4px; font-size: 1rem; }
+.password-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 10px; align-items: end; margin-top: 17px; }
+.admin-management-view { animation: admin-view-in .18s ease-out; }
+.admin-panel { margin-bottom: 14px; }
+.admin-panel-heading { align-items: flex-start; }
+.admin-page-actions { display: flex; align-items: center; justify-content: flex-end; gap: 9px; flex-wrap: wrap; }
+.admin-warning { margin: 18px 0 0; border: 1px solid #5b4a27; border-radius: 10px; padding: 11px 13px; background: #211d12; color: var(--amber); font-size: .74rem; line-height: 1.55; }
+.admin-create-grid { display: grid; grid-template-columns: 1fr 1fr 1.2fr 1.2fr 1.25fr auto; gap: 10px; align-items: end; padding: 20px 0; border-bottom: 1px solid var(--line); }
+.admin-trading-mode-management { margin: 20px 0 0; }
+.admin-add-ea-grid { display: grid; grid-template-columns: minmax(220px, 1.2fr) 1fr 1.25fr 1.1fr auto; gap: 10px; align-items: end; padding: 20px 0; border-bottom: 1px solid var(--line); }
+.admin-form-title { align-self: center; }
+.admin-form-title .card-label { margin-bottom: 4px; }
+.admin-form-title .form-note { margin: 0; text-align: left; }
+.admin-user-list { display: grid; gap: 9px; padding-top: 16px; }
+.admin-user-row { display: grid; grid-template-columns: minmax(125px, .65fr) minmax(170px, .9fr) minmax(140px, .75fr) minmax(145px, .7fr) minmax(230px, 1.1fr) auto; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: rgba(7,16,14,.55); }
+.admin-user-identity strong, .admin-user-ea strong { display: block; font-size: .8rem; }
+.admin-user-identity small, .admin-user-ea small { color: var(--muted); font-size: .68rem; }
+.admin-user-strategy { display: grid; gap: 3px; margin-top: 7px; color: var(--muted); font-size: .68rem; }
+.admin-user-strategy select { min-height: 32px; font-size: .72rem; }
+.admin-user-ea-order { display: block; margin-top: 3px; }
+.admin-user-identity { min-width: 0; }
+.admin-user-algorithm { display: inline-flex; width: fit-content; margin-top: 5px; border: 1px solid var(--line); border-radius: 999px; padding: 3px 7px; font-size: .58rem; font-weight: 800; letter-spacing: .045em; }
+.admin-user-algorithm.algorithm-running { border-color: #247952; background: rgba(70,230,159,.1); color: var(--green); }
+.admin-user-algorithm.algorithm-stopped { border-color: #783733; background: rgba(255,107,103,.1); color: #ff8c87; }
+.admin-user-algorithm.algorithm-offline { color: var(--muted); }
+.admin-user-connection { display: block; margin-top: 4px; line-height: 1.4; overflow-wrap: anywhere; }
+.admin-user-finance { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 3px 8px; min-width: 0; align-items: baseline; }
+.admin-user-finance small { color: var(--muted); font-size: .58rem; letter-spacing: .04em; }
+.admin-user-finance strong { min-width: 0; text-align: right; font-size: .76rem; overflow-wrap: anywhere; }
+.admin-user-finance-note { grid-column: 1 / -1; margin-top: 2px; letter-spacing: 0 !important; line-height: 1.35; }
+.daily-profit-target-card { display: grid; gap: 10px; }
+.daily-profit-target-card .compact-switch { margin: 0; }
+.daily-profit-target-field { display: grid; gap: 5px; color: var(--muted); font-size: .78rem; }
+.daily-profit-target-field input { min-height: 38px; }
+.daily-profit-target-card .button { justify-self: start; }
+.admin-user-ip { display: flex; align-items: center; gap: 7px; }
+.admin-user-ip input { min-height: 36px; }
+.admin-user-ip .button, .admin-user-actions .button { min-height: 34px; padding: 0 10px; font-size: .68rem; }
+.admin-user-expiration { display: grid; gap: 6px; min-width: 0; }
+.admin-user-expiration input { min-height: 36px; }
+.admin-user-expiration .button { min-height: 34px; padding: 0 10px; font-size: .68rem; }
+.admin-user-expiration small { color: var(--muted); font-size: .64rem; line-height: 1.4; overflow-wrap: anywhere; }
+.admin-user-expiration-summary.expiration-warning { color: var(--amber); }
+.admin-user-expiration-summary.expiration-expired { color: var(--red); }
+.admin-user-actions { display: flex; justify-content: flex-end; gap: 6px; flex-wrap: wrap; }
+.online-label { color: var(--green) !important; }
+.disabled-label { color: #ff9a96 !important; }
+@keyframes admin-view-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+.panel { padding: 24px; }
+.panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-bottom: 19px; border-bottom: 1px solid var(--line); }
+.panel-heading.compact { padding-bottom: 16px; }
+.revision { border: 1px solid var(--line); border-radius: 999px; padding: 5px 9px; color: var(--muted); font: 650 .72rem ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+.trading-mode-admin-panel { margin-top: 18px; border: 1px solid #315044; border-radius: 13px; padding: 15px; background: rgba(17,38,31,.58); }
+.trading-mode-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 13px; }
+.trading-mode-heading h3 { margin-top: 3px; font-size: .92rem; }
+.trading-mode-count { border: 1px solid var(--line); border-radius: 999px; padding: 4px 8px; color: var(--muted); font: 650 .66rem ui-monospace, SFMono-Regular, Menlo, monospace; }
+.trading-mode-admin-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; align-items: end; }
+.trading-mode-actions { display: flex; gap: 7px; }
+.trading-mode-actions .button, .trading-mode-save { min-height: 42px; padding: 0 12px; }
+.trading-mode-save { grid-column: 3; }
+.trading-mode-note { margin: 11px 0 0; color: var(--muted); font-size: .7rem; line-height: 1.5; }
+.user-entry-mode-section { margin-top: 18px; border: 1px solid #315044; border-radius: 13px; padding: 15px; background: rgba(17,38,31,.58); }
+.user-entry-mode-section .trading-mode-heading h3 { margin-top: 3px; font-size: .92rem; }
+.user-trading-mode-select { margin-top: 22px; }
+.user-trading-mode-save { width: 100%; margin-top: 14px; }
+.user-entry-mode-section .form-note { text-align: left; }
+.risk-field-note { margin-top: 0; color: var(--amber) !important; line-height: 1.4; }
+
+fieldset { border: 0; margin: 0; padding: 22px 0; border-bottom: 1px solid var(--line); }
+legend { padding: 0; margin-bottom: 14px; font-size: .82rem; font-weight: 750; }
+.field-grid { display: grid; gap: 12px; }
+.three-columns { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.four-columns { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 18px; }
+
+label, .select-label { display: flex; flex-direction: column; gap: 7px; color: #aebeb7; font-size: .75rem; font-weight: 650; }
+label small { color: #647870; font-size: .68rem; font-weight: 500; margin-top: -3px; }
+
+input, select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #284138;
+  border-radius: 10px;
+  outline: none;
+  background: #091510;
+  color: var(--text);
+  padding: 0 12px;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+input:focus, select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(70,230,159,.09); }
+
+.switch-row { flex-direction: row; align-items: center; justify-content: space-between; gap: 20px; }
+.switch-row span { display: flex; flex-direction: column; gap: 4px; }
+.switch-row input { appearance: none; width: 44px; min-height: 24px; height: 24px; padding: 0; border-radius: 99px; background: #24332d; position: relative; flex: 0 0 auto; }
+.switch-row input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #8b9a94; transition: .2s ease; }
+.switch-row input:checked { background: #1e6e4b; }
+.switch-row input:checked::after { left: 23px; background: var(--green); }
+
+.form-actions { display: flex; justify-content: flex-end; gap: 9px; padding-top: 22px; }
+.form-note { margin: 13px 0 0; color: var(--muted); font-size: .72rem; line-height: 1.55; text-align: right; }
+
+.side-column { display: grid; gap: 14px; align-content: start; }
+.control-panel select { margin-top: 14px; }
+.warning-text { margin: 12px 0 0; color: var(--amber); font-size: .72rem; line-height: 1.55; }
+.schedule-state { border: 1px solid var(--line); border-radius: 999px; padding: 5px 9px; color: var(--muted); font-size: .68rem; font-weight: 750; }
+.schedule-state[data-state="running"] { border-color: #286b50; color: var(--green); }
+.schedule-state[data-state="stopped"] { border-color: #633b39; color: #ff9a96; }
+.schedule-switch { margin-top: 17px; }
+.schedule-time-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 17px; }
+.schedule-save { width: 100%; margin-top: 14px; }
+.schedule-countdown { margin: 15px 0 0; color: var(--text); font: 750 .8rem ui-monospace, SFMono-Regular, Menlo, monospace; text-align: center; }
+.schedule-note { margin-top: 9px; text-align: center; }
+.telemetry-list { margin: 4px 0 0; }
+.telemetry-list div { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.telemetry-list dt { color: var(--muted); font-size: .72rem; }
+.telemetry-list dd { margin: 0; max-width: 60%; overflow-wrap: anywhere; text-align: right; font-size: .76rem; font-weight: 700; }
+.error-box { margin-top: 16px; border: 1px solid #663838; border-radius: 10px; padding: 12px; background: #261616; color: #ffaaa5; font-size: .72rem; line-height: 1.5; }
+
+.toast { position: fixed; right: 24px; bottom: 24px; max-width: min(390px, calc(100vw - 32px)); border: 1px solid #35614f; border-radius: 12px; padding: 12px 16px; background: #13251e; color: var(--text); box-shadow: var(--shadow); opacity: 0; transform: translateY(12px); pointer-events: none; transition: .2s ease; font-size: .8rem; }
+.toast.visible { opacity: 1; transform: translateY(0); }
+.toast.error { border-color: #713c3c; background: #2b1717; }
+
+.modal-backdrop { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 20px; background: rgba(2,8,6,.82); backdrop-filter: blur(7px); }
+.token-modal { width: min(590px, 100%); border: 1px solid #35614f; border-radius: 18px; padding: 26px; background: var(--panel-raised); box-shadow: var(--shadow); }
+.token-modal code { display: block; margin: 18px 0; border: 1px solid var(--line); border-radius: 10px; padding: 14px; background: #07100e; color: var(--green); overflow-wrap: anywhere; user-select: all; }
+.delete-user-modal { border-color: #713c3c; }
+.delete-user-modal form { display: grid; gap: 14px; margin-top: 18px; }
+.delete-user-modal .modal-actions { margin-top: 4px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 9px; }
+
+@media (max-width: 1050px) {
+  .hero-grid { grid-template-columns: repeat(2, 1fr); }
+  .status-card-finance { grid-column: span 1; }
+  .account-expiration-card { grid-column: span 2; }
+  .workspace-grid { grid-template-columns: 1fr; }
+  .calculator-grid { grid-template-columns: 1fr; }
+  .account-summary-grid { grid-template-columns: 1fr; }
+  .password-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .side-column { grid-template-columns: repeat(2, 1fr); }
+  .admin-create-grid, .admin-add-ea-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .trading-mode-admin-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .trading-mode-save { grid-column: auto; }
+  .admin-create-grid .button, .admin-add-ea-grid .button { align-self: stretch; }
+  .admin-user-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .shell { padding-top: 17px; }
+  .topbar { align-items: flex-start; }
+  .topbar, .topbar-controls { flex-direction: column; width: 100%; }
+  .topbar-controls { align-items: stretch; }
+  .target-picker { width: 100%; }
+  .admin-page-actions { align-items: stretch; justify-content: flex-start; }
+  .admin-page-actions .button { width: 100%; }
+  .calculator-page-heading { align-items: stretch; flex-direction: column; }
+  .calculator-page-actions { align-items: stretch; justify-content: flex-start; }
+  .calculator-page-actions > * { width: 100%; text-align: center; }
+  .connection-pill { padding: 0 11px; }
+  .hero-grid { grid-template-columns: 1fr; }
+  .status-card { min-height: auto; }
+  .account-expiration-card { grid-column: span 1; }
+  .three-columns, .four-columns, .side-column, .schedule-time-grid, .admin-create-grid, .admin-add-ea-grid, .admin-user-row, .password-form, .compact-account-form { grid-template-columns: 1fr; }
+  .account-panel-heading { align-items: stretch; flex-direction: column; }
+  .account-panel-heading .button { width: 100%; }
+  .panel { padding: 19px; }
+  .form-actions { flex-direction: column; }
+  .form-actions .button { width: 100%; }
+  .form-note { text-align: left; }
+  .admin-user-actions { justify-content: flex-start; }
+  .trading-mode-admin-grid { grid-template-columns: 1fr; }
+  .trading-mode-actions, .trading-mode-actions .button, .trading-mode-save { width: 100%; }
+  .trading-mode-actions .button { flex: 1; }
+  .calculator-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .modal-actions { flex-direction: column; }
+}
+
+@media (max-width: 430px) {
+  .calculator-fields, .calculator-money-grid { grid-template-columns: 1fr; }
+  .calculator-parameters, .calculator-result-hero { padding: 15px; }
+}
